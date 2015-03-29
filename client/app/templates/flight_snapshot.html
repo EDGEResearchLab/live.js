@@ -1,0 +1,22 @@
+<div class="row" style="border-bottom: 1px solid {{model.style.color}};">
+    <div class="col-sm-12 text-center">
+        <h5>Balloon ID: {{model.edgeId}}</h5>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12 text-center">
+        <span title="Latitude">{{latestPoint.latitude | number: 4}}&deg;</span>, 
+        <span title="Longitude">{{latestPoint.longitude | number: 4}}&deg;</span>
+    </div>
+</div>
+<div class="row text-center">
+    <div class="col-sm-12">
+        <span title="Speed">{{latestPoint.speed || 'NaN'}} m/s</span>, 
+        <span title="Altitude">{{latestPoint.altitude || 'NaN'}} m</span>
+    </div>
+</div>
+<div class="row text-center">
+    <div class="col-sm-12">
+        <span title="Ascent Rate">{{ascentRate}} m/s</span>
+    </div>
+</div>

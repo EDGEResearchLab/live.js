@@ -1,0 +1,44 @@
+<div class="row" style="border-bottom: 1px solid {{model.style.color}};">
+    <div class="col-sm-12 text-center">
+        <h5>Balloon ID: {{model.edgeId}}</h5>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <!-- TODO: Create DD to DM Filter, Meters to Feet filter -->
+        {{model.latitude}}, {{model.longitude}} @ {{model.altitude}}m
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4">
+        <label>Call:</label>
+    </div>
+    <div class="col-sm-4">
+        {{model.vors[0].call}}
+    </div>
+    <div class="col-sm-4">
+        {{model.vors[1].call}}
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4">
+        <label>Bearing:</label>
+    </div>
+    <div class="col-sm-4">
+        {{model.vors[0].bearing}}
+    </div>
+    <div class="col-sm-4">
+        {{model.vors[1].bearing}}
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4">
+        <label>Distance (nmi):</label>
+    </div>
+    <div class="col-sm-4">
+        {{model.vors[0].distance}}
+    </div>
+    <div class="col-sm-4">
+        {{model.vors[1].distance}}
+    </div>
+</div>

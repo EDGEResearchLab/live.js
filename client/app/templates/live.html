@@ -1,0 +1,25 @@
+<div class="row">
+    <div class="col-sm-9">
+        <ui-gmap-google-map
+            center="map.center"
+            zoom="map.zoom"
+            options="map.options">
+
+            <ui-gmap-polylines
+                models="trackingPointModels"
+                idKey="'edgeId'"
+                path="'points'"
+                stroke="'style'">
+            </ui-gmap-polylines>
+
+        </ui-gmap-google-map>
+    </div>
+    <div class="col-sm-3">
+        <span ng-repeat="model in trackingPointModels">
+            <flight-snapshot model="model"></flight-snapshot>
+        </span>
+    </div>
+</div>
+<div class="row">
+    <!-- Charts -->
+</div>

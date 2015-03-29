@@ -1,0 +1,14 @@
+.logo {
+    height: 35px;
+    width: auto;
+    margin-top: -7px;
+}
+
+footer {
+    margin-bottom: 20px;
+}
+
+.angular-google-map-container {
+    min-height: 400px;
+    height: 100%;
+}
