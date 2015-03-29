@@ -1,3 +1,5 @@
+/* global angular, io, google */
+
 'use strict';
 
 angular.module('EdgeVor', [])
@@ -30,6 +32,7 @@ angular.module('EdgeVor', [])
         };
     })
     .controller('VorController', function($scope, VorSocketFactory, $log) {
+        // Map options
         $scope.map = {
             center: {
                 latitude: 38.874380,
@@ -40,6 +43,21 @@ angular.module('EdgeVor', [])
                 mapTypeId: google.maps.MapTypeId.TERRAIN 
             }
         };
+
+        /**
+         * Models are the VOR points for display, they need at a minimum:
+         *  {
+         *      edgeId: String|Number,
+         *      points: [vor1, tracking point, vor2], // each point with at least {latitude: Number, longitude: Number}
+         *      vors: [{call: String, bearing: Number, distance: Number}], // this should be at least 2 points
+         *      latitude: Number, // Decimal Degrees
+         *      longitude: Number, // Decimal Degrees
+         *      altitude: Number, // Meters
+         *      style: {
+         *          color: HEX
+         *      }
+         *  }
+         */
         $scope.vorModels = [
             {
                 edgeId: '123',
