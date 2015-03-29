@@ -4,7 +4,8 @@
   "description": "EDGE Research Lab's live tracking website",
   "private": true,
   "scripts": {
-    "start": "node server/server.js"
+    "start": "node server/server.js",
+    "postinstall": "bower install"
   },
   "repository": {
     "type": "git",
