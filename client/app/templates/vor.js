@@ -31,18 +31,19 @@ angular.module('EdgeVor', [])
             }
         };
     })
-    .controller('VorController', function($scope, VorSocketFactory, $log) {
-        // Map options
-        $scope.map = {
-            center: {
-                latitude: 38.874380,
-                longitude: -104.409064
-            },
-            zoom: 10,
-            options: {
-                mapTypeId: google.maps.MapTypeId.TERRAIN 
-            }
-        };
+    .controller('VorController', function($scope, VorSocketFactory, $log, uiGmapGoogleMapApi) {
+        uiGmapGoogleMapApi.then(function(map) {
+            $scope.map = {
+                center: {
+                    latitude: 38.874380,
+                    longitude: -104.409064
+                },
+                zoom: 10,
+                options: {
+                    mapTypeId: map.MapTypeId.TERRAIN 
+                }
+            };
+        });
 
         /**
          * Models are the VOR points for display, they need at a minimum:
@@ -58,31 +59,28 @@ angular.module('EdgeVor', [])
          *      }
          *  }
          */
-        $scope.vorModels = [
-            {
-                edgeId: '123',
-                points: [
-                    {
-                        latitude: 38.774380,
-                        longitude: -104.709064
-                    },
-                    {
-                        latitude: 38.874380,
-                        longitude: -104.409064
-                    },
-                    {
-                        latitude: 38.974380,
-                        longitude: -103.009064
-                    }
-                ],
+        $scope.vorModels = [];
+        var edgeIdModelIdxMapping = {};
+
+        VorSocketFactory.on('trackingPoint', function(update) {
+            $log.info('Tracking Point:', update);
+            var idx = edgeIdModelIdxMapping[update.point.edgeId];
+            if (_.isUndefined(idx)) {
+                idx = $scope.vorModels.length;
+                edgeIdModelIdxMapping[update.point.edgeId] = idx;
+            }
+
+            $scope.vorModels[idx] = {
+                edgeId: update.point.edgeId,
                 style: {
                     color: '#FF0000'
-                }
-            }
-        ];
-
-        VorSocketFactory.on('trackingPoint', function(point) {
-            $log.info('Tracking Point:', point);
+                },
+                points: [update.vors[0], update.point, update.vors[1]],
+                vors: update.vors,
+                latitude: update.point.latitude,
+                longitude: update.point.longitude,
+                altitude: update.point.altitude
+            };
         });
 
         //VorSocketFactory.on('connect', function() {});

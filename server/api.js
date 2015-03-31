@@ -55,7 +55,7 @@ router.post('/report/satcom', function(req, res) {
     }
 });
 
-router.post('/report/testit', function(req, res) {
+router.post('/report/test', function(req, res) {
     req.app.emit('EDGE::VALID_TRACKING_POINT', req.body);
     res.status(200).json(req.body);
 });

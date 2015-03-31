@@ -17,6 +17,10 @@
 
     </div>
     <div class="col-sm-4">
+        <span ng-show="vorModels.length === 0" class="text-center col-sm-12" style="height: 100%; padding-top: 70%;">
+            Nothing to see here, check back on launch day!
+        </span>
+
         <span ng-repeat="model in vorModels">
             <vor-summary model="model"></vor-summary>
         </span>

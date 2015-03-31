@@ -15,7 +15,7 @@ angular.module('edge', [
      *
      *  TODO: Consider ordering based on priority instead of load order?
      */
-    .config(function($stateProvider, $urlRouterProvider) {
+    .config(function($urlRouterProvider, uiGmapGoogleMapApiProvider) {
         /**
          * Dynamically determine the default state if one is not found.
          * This assumes that some state claims it is the "default", the
@@ -30,6 +30,12 @@ angular.module('edge', [
                     $state.go(state.name);
                 }
             });
+        });
+
+        uiGmapGoogleMapApiProvider.configure({
+            key: 'AIzaSyDElRsfvj9mYEPmZ7RrOtf3V_QQ8uhlVq0',
+            v: '3.17',
+            libraries: 'geometry'
         });
     })
     /**

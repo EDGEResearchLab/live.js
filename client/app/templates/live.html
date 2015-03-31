@@ -15,11 +15,25 @@
         </ui-gmap-google-map>
     </div>
     <div class="col-sm-3">
+        <span ng-show="trackingPointModels.length === 0" class="text-center col-sm-12" style="height: 100%; padding-top: 70%;">
+            Nothing to see here, check back on launch day!
+        </span>
+
         <span ng-repeat="model in trackingPointModels">
             <flight-snapshot model="model"></flight-snapshot>
         </span>
     </div>
 </div>
-<div class="row">
-    <!-- Charts -->
-</div>
+<!--<div class="row" style="padding-top: 10px;">
+    <div class="col-sm-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">Altitude V. Time</div>
+            <div class="panel-body">
+                <canvas class="chart chart-line" data="altVsTime.data" labels="altVsTime.labels"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+
+    </div>
+</div>-->

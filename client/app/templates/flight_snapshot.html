@@ -11,12 +11,12 @@
 </div>
 <div class="row text-center">
     <div class="col-sm-12">
-        <span title="Speed">{{latestPoint.speed || 'NaN'}} m/s</span>, 
-        <span title="Altitude">{{latestPoint.altitude || 'NaN'}} m</span>
+        <span title="Speed">{{latestPoint.speed || 0}} m/s</span>, 
+        <span title="Altitude">{{latestPoint.altitude || 0}} m</span>
     </div>
 </div>
 <div class="row text-center">
     <div class="col-sm-12">
-        <span title="Ascent Rate">{{ascentRate}} m/s</span>
+        <span title="Ascent Rate">{{ascentRate || 0 | number: 2}} m/s</span>
     </div>
 </div>

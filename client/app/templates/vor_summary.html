@@ -4,9 +4,9 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-sm-12">
+    <div class="col-sm-12 text-center">
         <!-- TODO: Create DD to DM Filter, Meters to Feet filter -->
-        {{model.latitude}}, {{model.longitude}} @ {{model.altitude}}m
+        {{model.latitude | number: 4}}, {{model.longitude | number: 4}} @ {{model.altitude | number: 2}}m
     </div>
 </div>
 <div class="row">
@@ -25,10 +25,10 @@
         <label>Bearing:</label>
     </div>
     <div class="col-sm-4">
-        {{model.vors[0].bearing}}
+        {{model.vors[0].bearing | number: 2}}
     </div>
     <div class="col-sm-4">
-        {{model.vors[1].bearing}}
+        {{model.vors[1].bearing | number: 2}}
     </div>
 </div>
 <div class="row">
@@ -36,9 +36,9 @@
         <label>Distance (nmi):</label>
     </div>
     <div class="col-sm-4">
-        {{model.vors[0].distance}}
+        {{model.vors[0].distance | number: 2}}
     </div>
     <div class="col-sm-4">
-        {{model.vors[1].distance}}
+        {{model.vors[1].distance | number: 2}}
     </div>
 </div>
