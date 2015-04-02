@@ -1,8 +1,8 @@
-/* global angular, io, google */
-
 'use strict';
 
-angular.module('EdgeVor', [])
+/* global angular, io, google, _ */
+
+angular.module('EdgeVor', ['edgeGPS', 'edgeUtil'])
     .config(function($stateProvider) {
         $stateProvider
             .state('vor', {
@@ -13,11 +13,26 @@ angular.module('EdgeVor', [])
                 controller: 'VorController'
             });
     })
+    /**
+     * Return a persistent socket connection to the VOR namespace.
+     */
     .factory('VorSocketFactory', function(socketFactory, BaseUrl) {
         var sock = io.connect(BaseUrl + '/vor');
         return socketFactory({
             ioSocket: sock
         });
+    })
+    /**
+     * Factory to hold onto the VOR state for page navigation
+     * to and from to retain up-to-date information.  This allows
+     * for a user, after they have visited this page, to continue
+     * getting up-to-date info in the background.
+     */
+    .factory('VorState', function() {
+        return {
+            vorModels: [],
+            edgeIdModelIdxMapping: {}
+        };
     })
     .directive('vorSummary', function() {
         return {
@@ -31,7 +46,7 @@ angular.module('EdgeVor', [])
             }
         };
     })
-    .controller('VorController', function($scope, VorSocketFactory, $log, uiGmapGoogleMapApi) {
+    .controller('VorController', function($scope, VorSocketFactory, $log, uiGmapGoogleMapApi, ColorSvc, VorState) {
         uiGmapGoogleMapApi.then(function(map) {
             $scope.map = {
                 center: {
@@ -59,28 +74,31 @@ angular.module('EdgeVor', [])
          *      }
          *  }
          */
-        $scope.vorModels = [];
-        var edgeIdModelIdxMapping = {};
+        $scope.vorModels = VorState.vorModels;
+        VorState.edgeIdModelIdxMapping = {};
 
         VorSocketFactory.on('trackingPoint', function(update) {
-            $log.info('Tracking Point:', update);
-            var idx = edgeIdModelIdxMapping[update.point.edgeId];
+            //$log.info('VOR::Tracking Point:', update);
+            var idx = VorState.edgeIdModelIdxMapping[update.point.edgeId];
             if (_.isUndefined(idx)) {
-                idx = $scope.vorModels.length;
-                edgeIdModelIdxMapping[update.point.edgeId] = idx;
+                idx = VorState.vorModels.length;
+                VorState.edgeIdModelIdxMapping[update.point.edgeId] = idx;
+                VorState.vorModels[idx] = {
+                    edgeId: update.point.edgeId,
+                    style: {
+                        color: ColorSvc.generateRandomHex()
+                    },
+                    points: []
+                };
             }
 
-            $scope.vorModels[idx] = {
-                edgeId: update.point.edgeId,
-                style: {
-                    color: '#FF0000'
-                },
-                points: [update.vors[0], update.point, update.vors[1]],
-                vors: update.vors,
-                latitude: update.point.latitude,
-                longitude: update.point.longitude,
-                altitude: update.point.altitude
-            };
+            VorState.vorModels[idx].points[0] = update.vors[0];
+            VorState.vorModels[idx].points[1] = update.point;
+            VorState.vorModels[idx].points[2] = update.vors[1];
+            VorState.vorModels[idx].latitude = update.point.latitude;
+            VorState.vorModels[idx].longitude = update.point.longitude;
+            VorState.vorModels[idx].altitude = update.point.altitude;
+            VorState.vorModels[idx].vors = update.vors;
         });
 
         //VorSocketFactory.on('connect', function() {});

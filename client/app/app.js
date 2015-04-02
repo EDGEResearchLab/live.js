@@ -7,7 +7,7 @@ angular.module('edge', [
         'ui.router',
         'btford.socket-io',
         'EdgeLive',
-        'EdgeVor',
+        'EdgeVor'
         //'EdgePredict'
     ])
     /**

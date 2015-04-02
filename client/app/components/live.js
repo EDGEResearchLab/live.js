@@ -2,7 +2,7 @@
 
 'use strict';
 
-angular.module('EdgeLive', ['uiGmapgoogle-maps', 'chart.js'])
+angular.module('EdgeLive', ['uiGmapgoogle-maps', 'chart.js', 'edgeUtil'])
     .config(function($stateProvider) {
         $stateProvider
             .state('live', {
@@ -13,6 +13,12 @@ angular.module('EdgeLive', ['uiGmapgoogle-maps', 'chart.js'])
                 controller: 'LiveController',
                 default: true
             });
+    })
+    .factory('LiveState', function() {
+        return {
+            trackingPointModels: [],
+            edgeIdModelIdxMapping: {}
+        };
     })
     .factory('LiveSocketFactory', function(socketFactory, BaseUrl) {
         var sock = io.connect(BaseUrl + '/tracking');
@@ -66,18 +72,15 @@ angular.module('EdgeLive', ['uiGmapgoogle-maps', 'chart.js'])
             }
         };
     })
-    .controller('LiveController', function($scope, LiveSocketFactory, $log, $timeout, uiGmapGoogleMapApi) {
+    .controller('LiveController', function($scope, LiveSocketFactory, $log, $timeout, uiGmapGoogleMapApi, ColorSvc, LiveState) {
         var centerMapOnNewPoint = false;
-        $scope.altVsTime = {
-            data: [[]],
-            labels: []
-        };
+        //$scope.altVsTime = {
+        //    data: [[]],
+        //    labels: []
+        //};
         // Models for tracking points, minimum info required:
         // edgeId: string|int, points: [{TrackingPoint}], style: {color: HEX}
-        $scope.trackingPointModels = [];
-        // To avoid repeated loops, this is a poor man's cache of which id
-        // is which index in the tracking point models.
-        var edgeIdModelIdxMapping = {};
+        $scope.trackingPointModels = LiveState.trackingPointModels;
 
         uiGmapGoogleMapApi.then(function(map) {
             // Map Configuration Options
@@ -100,35 +103,25 @@ angular.module('EdgeLive', ['uiGmapgoogle-maps', 'chart.js'])
             };
         }
 
-        function generateRandomHexColor() {
-            var chars = 'ABCDEF0123456789';
-            var color = '#';
-            for (var i = 0; i < 6; i++) {
-                color += chars[Math.floor(Math.random() * (chars.length))];
-            }
-            return color;
-        }
-
         function handleNewPoint(point) {
-            var idx = edgeIdModelIdxMapping[point.edgeId];
+            var idx = LiveState.edgeIdModelIdxMapping[point.edgeId];
             if (_.isUndefined(idx)) {
-                idx = $scope.trackingPointModels.length;
-                edgeIdModelIdxMapping[point.edgeId] = idx;
-                $scope.trackingPointModels[idx] = {
+                idx = LiveState.trackingPointModels.length;
+                LiveState.edgeIdModelIdxMapping[point.edgeId] = idx;
+                LiveState.trackingPointModels[idx] = {
                     edgeId: point.edgeId,
                     points: [],
                     style: {
-                        color: generateRandomHexColor()
+                        color: ColorSvc.generateRandomHex()
                     }
                 };
             }
 
-            $scope.trackingPointModels[idx].points.push(point);
+            LiveState.trackingPointModels[idx].points.push(point);
         }
 
         LiveSocketFactory.on('initialPoints', function(points) {
             points.forEach(handleNewPoint);
-
         });
         LiveSocketFactory.on('trackingPoint', function(point) {
             handleNewPoint(point);
@@ -139,13 +132,17 @@ angular.module('EdgeLive', ['uiGmapgoogle-maps', 'chart.js'])
                 // account for map zoom.
                 var latCtr = 0;
                 var lngCtr = 0;
-                $scope.trackingPointModels.forEach(function(model) {
+                LiveState.trackingPointModels.forEach(function(model) {
                     var latestPoint = model.points[model.points.length - 1];
                     latCtr += latestPoint.latitude;
                     lngCtr += latestPoint.longitude;
                 });
-                var len = $scope.trackingPointModels.length;
-                setCenter(latCtr / len, lngCtr / len);
+                var len = LiveState.trackingPointModels.length;
+                try {
+                    setCenter(latCtr / len, lngCtr / len);
+                } catch (e) {
+                    /* Ignored, in case the map is null when the user is off the state. */
+                }
             }
         });
 

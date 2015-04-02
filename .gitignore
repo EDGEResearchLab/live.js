@@ -2,3 +2,5 @@ node_modules/
 *.log
 server/config.js
 client/components/
+.idea/
+*.iml
