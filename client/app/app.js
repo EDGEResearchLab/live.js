@@ -7,8 +7,8 @@ angular.module('edge', [
         'ui.router',
         'btford.socket-io',
         'EdgeLive',
-        'EdgeVor'
-        //'EdgePredict'
+        'EdgeVor',
+        'EdgePredict'
     ])
     /**
      *  Modules register any states they can provide in their `config`.

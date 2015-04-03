@@ -1,4 +1,4 @@
-/* global angular, io, google, _ */
+/* global angular, io, google, _, $ */
 
 'use strict';
 

@@ -1,5 +1,7 @@
 'use strict';
 
+/* global angular, io */
+
 angular.module('EdgePredict', [])
     .config(function($stateProvider) {
         $stateProvider
@@ -17,20 +19,35 @@ angular.module('EdgePredict', [])
             ioSocket: sock
         });
     })
-    .controller('PredictController', function($scope, PredictSocketFactory, $log) {
-        PredictSocketFactory.on('initialPoints', function(points) {
-            $log.info('Initial Points:', points);
+    .factory('PredictState', function() {
+        return {};
+    })
+    .controller('PredictController', function($scope, PredictSocketFactory, $log, uiGmapGoogleMapApi) {
+        $scope.predictedPoint = {};
+
+        uiGmapGoogleMapApi.then(function(map) {
+            $scope.map = {
+                center: {
+                    latitude: 38.874380,
+                    longitude: -104.409064
+                },
+                zoom: 13,
+                options: {
+                    mapTypeId: map.MapTypeId.TERRAIN
+                }
+            };
         });
 
-        PredictSocketFactory.on('trackingPoint', function(point) {
-            $log.info('Tracking Point:', point);
-        });
+        function setCenter(latitude, longitude) {
+            $scope.map.center = {
+                latitude: latitude,
+                longitude: longitude
+            };
+        }
 
-        PredictSocketFactory.on('connect', function() {
-            $log.info('Connected');
-        });
-
-        PredictSocketFactory.on('disconnect', function() {
-            $log.info('Disconnected');
+        PredictSocketFactory.on('predictedLandingPoint', function(point) {
+            $log.log('predictedLandingPoint:', point);
+            $scope.predictedPoint = point;
+            setCenter(point.latitude, point.longitude);
         });
     });

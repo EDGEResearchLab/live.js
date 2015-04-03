@@ -1,1 +1,20 @@
-<h1>Predict Template</h1>
+<div class="row">
+    <div class="col-sm-12" ng-show="predictedPoint.latitude !== undefined && predictedPoint.longitude !== undefined">
+        Predicted Landing: {{predictedPoint.latitude}}, {{predictedPoint.longitude}}
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <ui-gmap-google-map
+            center="map.center"
+            zoom="map.zoom"
+            options="map.options">
+
+            <ui-gmap-marker
+                idKey="'edgeId'"
+                coords="predictedPoint">
+            </ui-gmap-marker>
+
+        </ui-gmap-google-map>
+    </div>
+</div>

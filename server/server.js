@@ -5,7 +5,7 @@
 // 3rd Party/Node Core
 var async = require('async'),
     bodyParser = require('body-parser'),
-    //exec = require('child_process').exec, // TODO: Prediction
+    spawn = require('child_process').spawn, // TODO: Prediction
     express = require('express'),
     favicon = require('serve-favicon'),
     helmet = require('helmet'),
@@ -199,10 +199,29 @@ app.on('EDGE::VALID_TRACKING_POINT', function(newPoint) {
         },
         // We are working on a predictive landing functionality to dynamically
         // update flight predictions based on balloon metrics and national weather date.
-        //function predictHandler() {
+        function predictHandler() {
             // TODO: Call the prediction, on exit - get the result from stdout
             // and publish via socket.
-        //}
+            var child = spawn('python', ['/Users/matt/Developer/edge/prediction/FlightPrediction.py', '--mongo', newPoint.edgeId]);
+            var predictedLanding;
+            child.stdout.on('data', function(data) {
+                try {
+                    predictedLanding = JSON.parse(data);
+                    predictedLanding.edgeId = newPoint.edgeId;
+                    predictedLanding.point = newPoint;
+                    log.info('New Predicted Landing point:', predictedLanding);
+                    predictIo.emit('predictedLandingPoint', predictedLanding);
+                } catch (e) {
+                    log.error('Error receiving prediction:', e);
+                }
+            });
+            child.stderr.on('data', function(data) {
+                log.error('Error received from prediction.py:', data.toString());
+            });
+            child.on('close', function(code) {
+                log.info('Prediction run, exited with status:', code);
+            });
+        }
     ]);
 });
 
