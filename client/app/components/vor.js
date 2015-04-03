@@ -46,7 +46,16 @@ angular.module('EdgeVor', ['edgeGPS', 'edgeUtil'])
             }
         };
     })
-    .controller('VorController', function($scope, VorSocketFactory, $log, uiGmapGoogleMapApi, ColorSvc, VorState) {
+    .controller('VorController', function($scope, VorSocketFactory, $log, uiGmapGoogleMapApi, ColorSvc, VorState, $timeout) {
+        var centerMapOnNewPoint = true;
+
+        function setCenter(latitude, longitude) {
+            $scope.map.center = {
+                latitude: latitude,
+                longitude: longitude
+            };
+        }
+
         uiGmapGoogleMapApi.then(function(map) {
             $scope.map = {
                 center: {
@@ -75,10 +84,17 @@ angular.module('EdgeVor', ['edgeGPS', 'edgeUtil'])
          *  }
          */
         $scope.vorModels = VorState.vorModels;
-        VorState.edgeIdModelIdxMapping = {};
+
+        if (centerMapOnNewPoint) {
+            if ($scope.vorModels.length > 0) {
+                $timeout(function() {
+                    setCenter(VorState.vorModels[0].latitude, VorState.vorModels[0].longitude);
+                });
+            }
+        }
 
         VorSocketFactory.on('trackingPoint', function(update) {
-            //$log.info('VOR::Tracking Point:', update);
+            $log.info('VOR::Tracking Point:', update);
             var idx = VorState.edgeIdModelIdxMapping[update.point.edgeId];
             if (_.isUndefined(idx)) {
                 idx = VorState.vorModels.length;
@@ -99,8 +115,8 @@ angular.module('EdgeVor', ['edgeGPS', 'edgeUtil'])
             VorState.vorModels[idx].longitude = update.point.longitude;
             VorState.vorModels[idx].altitude = update.point.altitude;
             VorState.vorModels[idx].vors = update.vors;
+            if (centerMapOnNewPoint) {
+                setCenter(update.point.latitude, update.point.longitude);
+            }
         });
-
-        //VorSocketFactory.on('connect', function() {});
-        //VorSocketFactory.on('disconnect', function() {});
     });

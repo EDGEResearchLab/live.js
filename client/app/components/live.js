@@ -73,14 +73,20 @@ angular.module('EdgeLive', ['uiGmapgoogle-maps', 'chart.js', 'edgeUtil'])
         };
     })
     .controller('LiveController', function($scope, LiveSocketFactory, $log, $timeout, uiGmapGoogleMapApi, ColorSvc, LiveState) {
+        // Ensure that the twitter feed redraws on state load.
         $timeout(function() {
             $.ajax({url: 'http://platform.twitter.com/widgets.js', dataType: 'script', cache:true});
         }, 250);
-        var centerMapOnNewPoint = false;
+        var centerMapOnNewPoint = true;
 
         // Models for tracking points, minimum info required:
         // edgeId: string|int, points: [{TrackingPoint}], style: {color: HEX}
         $scope.trackingPointModels = LiveState.trackingPointModels;
+        if (centerMapOnNewPoint) {
+            $timeout(function() {
+                determineAndCenter();
+            });
+        }
 
         uiGmapGoogleMapApi.then(function(map) {
             // Map Configuration Options
@@ -120,29 +126,37 @@ angular.module('EdgeLive', ['uiGmapgoogle-maps', 'chart.js', 'edgeUtil'])
             LiveState.trackingPointModels[idx].points.push(point);
         }
 
+        function determineAndCenter() {
+            // Roughly calculate a center value, this assumes
+            // the balloons are near each other (ish) and does not
+            // account for map zoom.
+            var latCtr = 0;
+            var lngCtr = 0;
+            LiveState.trackingPointModels.forEach(function(model) {
+                var latestPoint = model.points[model.points.length - 1];
+                latCtr += latestPoint.latitude;
+                lngCtr += latestPoint.longitude;
+            });
+            var len = LiveState.trackingPointModels.length;
+            try {
+                setCenter(latCtr / len, lngCtr / len);
+            } catch (e) {
+                /* Ignored, in case the map is null when the user is off the state. */
+            }
+        }
+
         LiveSocketFactory.on('initialPoints', function(points) {
             points.forEach(handleNewPoint);
+
+            if (centerMapOnNewPoint) {
+                determineAndCenter();
+            }
         });
         LiveSocketFactory.on('trackingPoint', function(point) {
             handleNewPoint(point);
 
             if (centerMapOnNewPoint) {
-                // Roughly calculate a center value, this assumes
-                // the balloons are near each other (ish) and does not
-                // account for map zoom.
-                var latCtr = 0;
-                var lngCtr = 0;
-                LiveState.trackingPointModels.forEach(function(model) {
-                    var latestPoint = model.points[model.points.length - 1];
-                    latCtr += latestPoint.latitude;
-                    lngCtr += latestPoint.longitude;
-                });
-                var len = LiveState.trackingPointModels.length;
-                try {
-                    setCenter(latCtr / len, lngCtr / len);
-                } catch (e) {
-                    /* Ignored, in case the map is null when the user is off the state. */
-                }
+                determineAndCenter();
             }
         });
     });
