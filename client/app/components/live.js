@@ -73,11 +73,11 @@ angular.module('EdgeLive', ['uiGmapgoogle-maps', 'chart.js', 'edgeUtil'])
         };
     })
     .controller('LiveController', function($scope, LiveSocketFactory, $log, $timeout, uiGmapGoogleMapApi, ColorSvc, LiveState) {
+        $timeout(function() {
+            $.ajax({url: 'http://platform.twitter.com/widgets.js', dataType: 'script', cache:true});
+        }, 250);
         var centerMapOnNewPoint = false;
-        //$scope.altVsTime = {
-        //    data: [[]],
-        //    labels: []
-        //};
+
         // Models for tracking points, minimum info required:
         // edgeId: string|int, points: [{TrackingPoint}], style: {color: HEX}
         $scope.trackingPointModels = LiveState.trackingPointModels;
@@ -145,8 +145,4 @@ angular.module('EdgeLive', ['uiGmapgoogle-maps', 'chart.js', 'edgeUtil'])
                 }
             }
         });
-
-        // TODO: Show socket connection status
-        //LiveSocketFactory.on('connect', function() {});
-        //LiveSocketFactory.on('disconnect', function() {});
     });
