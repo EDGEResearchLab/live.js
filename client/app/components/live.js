@@ -82,7 +82,7 @@ angular.module('EdgeLive', ['uiGmapgoogle-maps', 'chart.js', 'edgeUtil'])
         // Models for tracking points, minimum info required:
         // edgeId: string|int, points: [{TrackingPoint}], style: {color: HEX}
         $scope.trackingPointModels = LiveState.trackingPointModels;
-        if (centerMapOnNewPoint) {
+        if (centerMapOnNewPoint && $scope.trackingPointModels.length > 0) {
             $timeout(function() {
                 determineAndCenter();
             });
@@ -146,16 +146,18 @@ angular.module('EdgeLive', ['uiGmapgoogle-maps', 'chart.js', 'edgeUtil'])
         }
 
         LiveSocketFactory.on('initialPoints', function(points) {
+            $log.debug('Initial Points:', points);
             points.forEach(handleNewPoint);
 
-            if (centerMapOnNewPoint) {
+            if (centerMapOnNewPoint && points.length > 0) {
                 determineAndCenter();
             }
         });
         LiveSocketFactory.on('trackingPoint', function(point) {
+            $log.debug('Tracking Point:', point);
             handleNewPoint(point);
 
-            if (centerMapOnNewPoint) {
+            if (centerMapOnNewPoint && !_.isUndefined(point)) {
                 determineAndCenter();
             }
         });
