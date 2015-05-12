@@ -202,17 +202,17 @@ app.on('EDGE::VALID_TRACKING_POINT', function(newPoint) {
         function predictHandler() {
             // TODO: Call the prediction, on exit - get the result from stdout
             // and publish via socket.
-            var child = spawn('python', ['/Users/matt/Developer/edge/prediction/FlightPrediction.py', '--mongo', newPoint.edgeId]);
-            var predictedLanding;
+            log.info('Running prediction handler');
+            var child = spawn('python', ['/home/edge/prediction/FlightPrediction.py', '--mongo', newPoint.edgeId]);
             child.stdout.on('data', function(data) {
                 try {
-                    predictedLanding = JSON.parse(data);
+                    var predictedLanding = JSON.parse(data);
                     predictedLanding.edgeId = newPoint.edgeId;
                     predictedLanding.point = newPoint;
                     log.info('New Predicted Landing point:', predictedLanding);
                     predictIo.emit('predictedLandingPoint', predictedLanding);
                 } catch (e) {
-                    log.error('Error receiving prediction:', e);
+                    log.error('Error receiving prediction:' + e);
                 }
             });
             child.stderr.on('data', function(data) {
