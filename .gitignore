@@ -4,3 +4,4 @@ server/config.js
 client/components/
 .idea/
 *.iml
+.DS_Store
